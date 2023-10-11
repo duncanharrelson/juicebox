@@ -38,7 +38,7 @@ postsRouter.get('/', async (req, res, next) => {
 });
 
 postsRouter.post('/', requireUser, async (req, res, next) => {
-  const { title, content = "" } = req.body;
+  const { title, content, tags = "" } = req.body;
 
   const postData = {};
 
@@ -46,6 +46,7 @@ postsRouter.post('/', requireUser, async (req, res, next) => {
     postData.authorId = req.user.id;
     postData.title = title;
     postData.content = content;
+    postData.tags = tags;
 
     const post = await createPost(postData);
 
