@@ -99,7 +99,27 @@ postsRouter.patch('/:postId', requireUser, async (req, res, next) => {
 });
 
 postsRouter.delete('/:postId', requireUser, async (req, res, next) => {
-  res.send({ message: 'under construction' });
+  try {
+    const {postId} = req.params;
+    const postToUpdate = await getPostById(postId);
+    if(!postToUpdate) {
+      next({
+        name: 'NotFound',
+        message: `No routine by ID ${postId}`
+      })
+    } else if(req.user.id !== postToUpdate.author.id) {
+      res.status(403);
+      next({
+        name: "WrongUserError",
+        message: "You must be the same user who created this routine to perform this action"
+      });
+    } else {
+      const deletedPost = await destroyRoutine(postId)
+      res.send({success: true, ...deletedPost});
+    }
+  } catch (error) {
+    next(error);
+  }
 });
 
 module.exports = postsRouter;
