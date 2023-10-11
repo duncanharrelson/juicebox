@@ -354,6 +354,23 @@ async function getAllTags() {
   }
 }
 
+async function destroyPost(id) {
+  try {
+    await client.query(`
+      DELETE FROM post_tags
+      WHERE "postId" = $1;
+    `, [id]);
+    const {rows: [post]} = await client.query(`
+      DELETE FROM posts
+      WHERE id = $1
+      RETURNING *
+    `, [id]);
+    return post;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {  
   client,
   createUser,
@@ -370,5 +387,6 @@ module.exports = {
   createTags,
   getAllTags,
   createPostTag,
-  addTagsToPost
+  addTagsToPost,
+  destroyPost
 }

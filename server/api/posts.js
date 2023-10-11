@@ -8,6 +8,7 @@ const {
   getAllPosts,
   updatePost,
   getPostById,
+  destroyPost
 } = require('../db');
 
 postsRouter.get('/', async (req, res, next) => {
@@ -98,25 +99,11 @@ postsRouter.patch('/:postId', requireUser, async (req, res, next) => {
   }
 });
 
-postsRouter.delete('/:postId', requireUser, async (req, res, next) => {
+postsRouter.delete('/:postId',  async (req, res, next) => {
   try {
     const {postId} = req.params;
-    const postToUpdate = await getPostById(postId);
-    if(!postToUpdate) {
-      next({
-        name: 'NotFound',
-        message: `No routine by ID ${postId}`
-      })
-    } else if(req.user.id !== postToUpdate.author.id) {
-      res.status(403);
-      next({
-        name: "WrongUserError",
-        message: "You must be the same user who created this routine to perform this action"
-      });
-    } else {
-      const deletedPost = await destroyRoutine(postId)
-      res.send({success: true, ...deletedPost});
-    }
+    const deletePost = await destroyPost(postId);
+    res.send(deletePost)
   } catch (error) {
     next(error);
   }
